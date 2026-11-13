@@ -1,112 +1,81 @@
-# Chat Verso - Aplicação de Chat em Tempo Real
+# ChatVerso
 
+Aplicação de chat em tempo real feita com Flask e Flask-SocketIO, com páginas HTML/CSS/JavaScript e um lançador de login opcional em Flet.
 
+## Estrutura do repositório
 
-**Chat Verso** é uma aplicação de chat web completa e funcional, construída com Python no backend e JavaScript puro no frontend. Ela demonstra a comunicação em tempo real usando WebSockets, gerenciamento de usuários, e funcionalidades modernas de UI/UX como indicador de digitação e resposta a mensagens.
-
-## ✨ Funcionalidades Principais
-
-- **Chat em Tempo Real**: Mensagens são enviadas e recebidas instantaneamente sem a necessidade de recarregar a página, graças ao Flask-SocketIO.
-- **Múltiplos Usuários**: Vários usuários podem entrar no chat com nomes de usuário únicos.
-- **Identificação por Cores**: Cada usuário recebe uma cor aleatória e única para seus balões de mensagem, facilitando a identificação visual.
-- **Mensagens do Sistema**: Notificações automáticas aparecem quando um usuário entra ou sai do chat.
-- **Indicador de "Digitando..."**: Mostra em tempo real quando outro usuário está escrevendo uma mensagem.
-- **Responder a Mensagens**: Uma funcionalidade completa que permite responder a uma mensagem específica através de três métodos:
-  - **Desktop**: Clique duplo na mensagem ou clique no botão de resposta que aparece ao passar o mouse.
-  - **Mobile**: Deslize a mensagem da esquerda para a direita.
-- **Animação de Resposta (Mobile)**: Ao deslizar para responder, a mensagem acompanha o movimento do dedo, fornecendo um feedback visual intuitivo.
-- **Acessível em Rede Local**: O servidor é configurado para ser acessível por qualquer dispositivo (como celulares e outros computadores) na mesma rede Wi-Fi.
-- **Design Responsivo**: A interface se adapta a telas de diferentes tamanhos, proporcionando uma boa experiência tanto em desktops quanto em dispositivos móveis.
-
----
-
-## 🚀 Tecnologias Utilizadas
-
-- **Backend**:
-  - **Python 3**: Linguagem de programação principal.
-  - **Flask**: Micro-framework web para criar as rotas e a estrutura do servidor.
-  - **Flask-SocketIO**: Extensão do Flask que habilita a comunicação bidirecional baseada em eventos (WebSockets) entre o cliente e o servidor.
-
-- **Frontend**:
-  - **HTML5**: Estrutura da página web.
-  - **CSS3**: Estilização da interface, incluindo o layout flexbox e animações.
-  - **JavaScript (Vanilla)**: Lógica do lado do cliente para interagir com o servidor Socket.IO, manipular o DOM e gerenciar eventos de UI.
-
----
-
-## 📂 Estrutura do Projeto
-
-```
-Gabarito/
-├── app.py             # O coração do backend: servidor Flask e lógica do SocketIO.
-├── index.html         # A página principal do chat, com toda a estrutura, CSS e JavaScript.
-├── login.html         # A página de login para o usuário inserir seu nome.
-└── README.md          # Este arquivo.
+```text
+Chat-Verso/
+├── app.py
+├── chatverso.py
+├── index.html
+├── login.html
+├── requirements.txt
+├── static/
+│   ├── script.js
+│   └── style.css
+├── .gitignore
+└── README.md
 ```
 
-### `app.py`
+`.venv/` é criado localmente durante a instalação e não é versionado.
 
-Este é o servidor backend. Suas principais responsabilidades são:
-- Iniciar um servidor web com Flask.
-- Gerenciar conexões de clientes via SocketIO.
-- Manter um registro dos **usuários conectados**, associando o ID da sessão (`sid`) a um nome de usuário e uma cor.
-- Manter um **histórico de mensagens** para buscar o contexto quando uma mensagem é respondida.
-- Processar eventos como `connect`, `disconnect`, `join`, `message` e `typing`.
-- Transmitir (`broadcast`) mensagens e eventos para todos os clientes conectados.
+## Instalação
 
-### `index.html`
+Execute os comandos na raiz do repositório:
 
-Este arquivo é a interface do chat. Ele contém três partes principais:
-1.  **HTML**: A estrutura da janela de chat, a lista de mensagens e o formulário de envio.
-2.  **CSS**: Todo o código de estilo para os balões de mensagem, cores, layout responsivo e animações.
-3.  **JavaScript**: A lógica do lado do cliente. Ele se conecta ao servidor Socket.IO, envia eventos (como novas mensagens) e escuta por eventos vindos do servidor para atualizar a interface (adicionar novas mensagens, mostrar o indicador de "digitando...", etc.).
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+```
 
-### `login.html`
+Em macOS/Linux, ative o ambiente com `source .venv/bin/activate` em vez do comando de ativação do PowerShell.
+Se o Python estiver instalado via `uv` e o comando `python` não estiver no `PATH`, use `uv venv .venv --python 3.14` no lugar da primeira linha.
 
-Uma página simples com um formulário que pede um nome de usuário. Ao submeter, o usuário é redirecionado para a página de chat (`/chat`) com seu nome.
+## Chave do Flask e execução local
 
----
+O servidor exige `FLASK_SECRET_KEY` no ambiente; ele não tem uma chave padrão no código. Gere uma chave nova e mantenha-a fora do repositório. Como a chave anterior foi publicada, considere-a comprometida e não a reutilize.
 
-## ⚙️ Como Executar o Projeto
+No PowerShell, na mesma janela em que iniciará o servidor:
 
-### 1. Pré-requisitos
+```powershell
+$env:FLASK_SECRET_KEY = (& python -c "import secrets; print(secrets.token_urlsafe(32))")
+$env:CHAT_SERVER_IP = "127.0.0.1"
+python .\app.py
+```
 
-Certifique-se de ter o **Python 3** instalado. Você precisará instalar as bibliotecas Flask e Flask-SocketIO.
+Em macOS/Linux:
 
 ```bash
-# Instale as dependências necessárias
-pip install Flask Flask-SocketIO
-```
-
-### 2. Iniciando o Servidor
-
-Navegue até a pasta do projeto no seu terminal e execute o arquivo `app.py`.
-
-```bash
+export FLASK_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
+export CHAT_SERVER_IP=127.0.0.1
 python app.py
 ```
 
-Você verá uma mensagem indicando que o servidor está rodando, geralmente em `http://0.0.0.0:5000`.
+O comando inicia o servidor Flask e Socket.IO, na porta `5000`. Acesse localmente em <http://127.0.0.1:5000>. A variável `FLASK_SECRET_KEY` só precisa ser definida no ambiente do servidor; não a coloque no código, no README ou em arquivos versionados.
 
-### 3. Acessando o Chat
+## Lançador opcional em Flet
 
-#### No mesmo computador:
+Com o servidor em execução, abra outro terminal na raiz do repositório, ative o mesmo ambiente virtual e inicie o lançador:
 
-Abra seu navegador e acesse `http://localhost:5000` ou `http://127.0.0.1:5000`.
+```powershell
+$env:CHAT_SERVER_IP = "127.0.0.1"
+python .\chatverso.py
+```
 
-#### Em outro dispositivo (Celular, Tablet, etc.):
+Acesse <http://127.0.0.1:8550>. Por padrão, o lançador aceita conexões somente da própria máquina e abre o chat no servidor indicado por `CHAT_SERVER_IP`; localmente, o padrão é `127.0.0.1`.
 
-1.  **Conecte na mesma rede**: Certifique-se de que o dispositivo e o computador que está rodando o servidor estejam conectados na **mesma rede Wi-Fi**.
-2.  **Descubra o IP local do computador**:
-    - **Windows**: Abra o Prompt de Comando (CMD) e digite `ipconfig`. Procure pelo "Endereço IPv4".
-    - **macOS/Linux**: Abra o Terminal e digite `ifconfig` ou `ip addr`. Procure pelo endereço `inet`.
-3.  **Acesse no navegador do dispositivo**: Abra o navegador no seu celular ou tablet e digite o endereço IP encontrado, seguido da porta `:5000`.
-    - Exemplo: `http://192.168.1.5:5000`
+## Acesso pela rede local
 
-> **⚠️ Problemas de Conexão?**
-> Se você não conseguir se conectar a partir de outro dispositivo, o problema é quase sempre o **Firewall** do seu computador (Windows Defender ou de um antivírus). Ele pode estar bloqueando conexões na porta `5000`. Você precisa criar uma **regra de entrada** para permitir conexões TCP na porta 5000.
+O servidor de chat escuta em todas as interfaces na porta `5000`. Em outro dispositivo na mesma rede, abra `http://<IP-DA-MAQUINA-DO-SERVIDOR>:5000`. Se necessário, permita a porta `5000` no firewall.
 
-<footer class="app-footer">
-    <p>© 2025 DuduTri. Todos os direitos reservados.</p>
-    <p>Contato: <a href="mailto:est.teodoro@gmail.com">est.teodoro@gmail.com</a></p>
-</footer>
+Para usar o lançador Flet a partir de outros dispositivos, configure o endereço do servidor no ambiente do processo Flet e permita a porta `8550`. No PowerShell:
+
+```powershell
+$env:CHAT_SERVER_IP = "<IP-DA-MAQUINA-DO-SERVIDOR>"
+$env:FLET_HOST = "0.0.0.0"
+python .\chatverso.py
+```
+
+Então, no outro dispositivo, acesse `http://<IP-DA-MAQUINA-DO-FLET>:8550`. Substitua os marcadores pelos endereços reais da rede. `CHAT_SERVER_IP` é o endereço usado pelo navegador para alcançar o servidor de chat; se o Flet for aberto em outro dispositivo, não use `127.0.0.1`, pois esse endereço apontaria para o próprio dispositivo cliente.

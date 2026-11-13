@@ -4,6 +4,8 @@
 # DESCRIÇÃO: Este script utiliza Flask para criar as rotas web e Flask-SocketIO
 #            para gerenciar a comunicação em tempo real (mensagens de chat).
 # =====================================================================================
+import os
+
 from flask import Flask, render_template, request, redirect, url_for # estruturas para criar o site
 from flask_socketio import SocketIO, emit # estruturas para criar o chat
 
@@ -15,7 +17,10 @@ import random # para escolher cores aleatórias
 #          Como nossos arquivos HTML estão no mesmo diretório que app.py,
 #          especificamos `template_folder='.'`. O mesmo se aplica a `static_folder='static'`.
 app = Flask(__name__, template_folder='.', static_folder='static')
-app.config["SECRET_KEY"] = "ajuiahfa78fh9f78shfs768fgs7f6" # chave de seguranca, pode ser qualquer coisa, mas escolha algo dificil
+flask_secret_key = os.environ.get("FLASK_SECRET_KEY")
+if not flask_secret_key:
+    raise RuntimeError("Defina a variável de ambiente FLASK_SECRET_KEY antes de iniciar o servidor.")
+app.config["SECRET_KEY"] = flask_secret_key
 
 # Inicializa o SocketIO, permitindo que o servidor se comunique em tempo real.
 # POR QUÊ `cors_allowed_origins`? Isso é uma medida de segurança. `"*"` permite que

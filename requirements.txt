@@ -1,0 +1,4 @@
+Flask
+Flask-SocketIO
+fastapi==0.115.12
+flet[web]==0.86.5
